@@ -1,9 +1,6 @@
 package bgu.spl181.net.impl.BBtpc;
 
-import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
-import bgu.spl181.net.api.bidi.MessageEncoderDecoderImpl;
-import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
-import bgu.spl181.net.api.bidi.UserMessagingProtocol;
+import bgu.spl181.net.api.bidi.*;
 import bgu.spl181.net.api.json.Movie;
 import bgu.spl181.net.api.json.MoviesList;
 import bgu.spl181.net.api.json.User;
@@ -49,7 +46,7 @@ public class TPCMain {
         Server.threadPerClient(
 
                 port, //port
-                UserMessagingProtocol::new, //protocol factory
+                new UserMessagingProtocol(users), //protocol factory
                 MessageEncoderDecoderImpl::new //message encoder decoder factory
         ).serve();
 
