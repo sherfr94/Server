@@ -38,8 +38,9 @@ public class ConnectionsImpl<T> implements Connections<T>{
         connections.remove(connectionId);
     }
 
-    public void add(ConnectionHandler<T> connectionHandler, Integer connectionId) {
-        connections.put(connectionId, connectionHandler);
+    public void add(ConnectionHandler<T> connectionHandler) {
+        connections.put(getNewConnectionId(), connectionHandler);
+
     }
 
 
