@@ -49,50 +49,155 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     }
 
+    private void login(String str){
+        boolean error = false;
+        int pos2 = str.indexOf(" ");
+        String username = str.substring(0, pos2);
+        String password = str.substring(pos2+1);
+        System.out.println("username: "+username);
+        System.out.println("password: "+password);
+
+        if((passwords.get(username)==null)) {//not in user list
+            System.out.println("error4");
+            error = true;
+        }
+        if(loggedIn.get(connectionId)!=null && !error) { // case client id is already logged in
+            System.out.println("error1");
+            error=true;
+        }
+        if(loggedIn.containsValue(username) && !error) { // case other username is already logged in
+            System.out.println("error2");
+
+            error=true;
+        }
+        if((passwords.get(username)!=null) && !error) {
+            if (!(passwords.get(username).equals(password))) { // wrong password
+                System.out.println("error3");
+                error = true;
+            }
+        }
+
+
+        if(!error) {
+            loggedIn.put(connectionId, username);
+            connections.send(connectionId,"ACK login succeeded");
+        }
+        else {
+            connections.send(connectionId,"ERROR login failed");
+        }
+    }
+
+    private void register(String str){
+        boolean error = false;
+        int pos2 = str.indexOf(" ");
+        //3 missing username / password
+        if(pos2==-1) {
+            connections.send(connectionId,"ERROR register failed");
+            return;
+        }
+
+        String username = str.substring(0, pos2);
+        str=str.substring(pos2+1);
+        String password;
+        User newUser;
+
+        //1
+        if(!error && loggedIn.containsKey(connectionId)){
+            error=true;
+        }
+        //2
+        if(!error && passwords.containsKey(username)){
+            error=true;
+        }
+
+        if(error){
+            connections.send(connectionId,"ERROR register failed");
+            return;
+        }
+
+        int pos3 = str.indexOf(" ");
+        if(pos3==-1){ //no country
+            password = str;
+            newUser = new User(username,password);
+            //TODO: json update
+
+        }
+        else{//yes country
+
+            password = str.substring(0,pos3);
+            str=str.substring(pos3+1);
+
+            //4 //TODO: check more country problems
+            if(!str.contains("country=\"")){
+                connections.send(connectionId,"ERROR register failed");
+                return;
+            }
+
+            int pos4 = str.indexOf("\"");
+            String country=str.substring(pos4+1,str.length()-1);
+
+            newUser = new User(username,password);
+            newUser.setCountry(country);
+
+
+        }
+
+        if(!error){
+            users.add(newUser);
+            passwords.put(newUser.getUsername(),newUser.getPassword());
+            connections.send(connectionId,"ACK registration succeeded");
+
+            System.out.println(newUser);
+        }
+
+    }
+
+    private void request(String str){
+
+    }
+
+    private void signout() {
+        boolean error = false;
+        if(!(loggedIn.containsKey(connectionId))){
+            System.out.println("#1");
+            connections.send(connectionId,"ERROR signout failed");
+        }
+        else{
+            System.out.println("#2");
+            loggedIn.remove(connectionId);
+            connections.send(connectionId,"ACK signout succeeded");
+        }
+    }
+
     @Override
     public void process(Object message) {
 
-        boolean error = false;
 
         String str = (String)message;
-        if(str.equals("SIGNOUT")){
+        System.out.println("str: "+str);
 
+
+
+        if(str.equals("SIGNOUT")){
+            System.out.println("#");
+            signout();
         }
         else{
             int pos1 = str.indexOf(" ");
             String first = str.substring(0,pos1);
+            System.out.println("first: "+first);
             str = str.substring(pos1+1);
 
             if(first.equals("LOGIN")){
-                int pos2 = str.indexOf(" ");
-                String username = str.substring(0, pos2);
-                String password = str.substring(pos2+1);
-
-                if(loggedIn.get(connectionId)!=null) { // case client id is already logged in
-                    error=true;
-                }
-                if(loggedIn.containsValue(username)) { // case other username is already logged in
-                    error=true;
-                }
-                if(!(passwords.get(username)!=null)) {
-                    if (!passwords.get(username).equals(password)) { // wrong password
-                        error = true;
-                    }
-                }
-                if(!users.contains(username)){
-                    error=true;
-                }
-
-                if(!error) {
-                    loggedIn.put(connectionId, username);
-                    connections.send(connectionId,"ACK login succeeded\n");
-                }
-                else {
-                    connections.send(connectionId,"ERROR login failed\n");
-                }
-
-
+                login(str);
             }
+            else if(first.equals("REGISTER")){
+                register(str);
+            }
+            else if(first.equals("REQUEST")){
+                request(str);
+            }
+
         }
 
     }

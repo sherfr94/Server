@@ -17,6 +17,7 @@ public class ConnectionsImpl<T> implements Connections<T>{
 
     public boolean send(int connectionId, T msg) {
         if (connections.containsKey(connectionId)) {
+            System.out.println(msg);
             connections.get(connectionId).send(msg);
             return true;
         }
