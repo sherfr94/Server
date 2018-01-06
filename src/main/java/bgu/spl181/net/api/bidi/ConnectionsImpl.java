@@ -41,7 +41,7 @@ public class ConnectionsImpl<T> implements Connections<T>{
 
     public void broadcast(T msg) {
         loggedIn.forEach( (k,v) -> connections.get(k).send(msg));
-    }//TODO: SHAPO
+    }//TODO: FAIL
 
     public void disconnect(int connectionId) throws IOException {
         connections.get(connectionId).close();

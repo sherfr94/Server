@@ -11,16 +11,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
-    ArrayList<Movie> movies;
+    protected ArrayList<Movie> movies;
     protected ConcurrentHashMap<String,Movie> moviesInfo;
+
+    protected Integer maxMovieId = 0;
+
+
 
     public MovieMessagingProtocol(UsersList users, MoviesList movies){
         super(users);
         this.movies= (ArrayList) movies.getMovies();
         this.moviesInfo = new ConcurrentHashMap<>();
 
+
         for(Movie movie : this.movies){
             moviesInfo.put(movie.getName(),movie);
+            if(movie.getId()>maxMovieId) maxMovieId=movie.getId();
         }
 
     }
@@ -130,18 +136,202 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
                 //add to user movie list
                 usersInfo.get(username).getMovies().add(moviesInfo.get(moviename));
-                System.out.println(usersInfo.get(username));
-                System.out.println(moviesInfo.get(moviename));
+
                 connections.send(connectionId,"ACK rent \""+moviename+"\" success");
+                //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);//TODO: another thread
             }
 
 
         }
         else if(str.contains("return ")){
 
+            int pos1 = str.indexOf("\"");
+            int pos2 = str.lastIndexOf("\"");
+            String moviename= str.substring(pos1+1, pos2);
+            Movie toRemove = new Movie();
+
+            boolean error=false;
+
+            //3 - movie doesn't exist
+            if(!moviesInfo.containsKey(moviename)) error=true;
+            //2 - user not renting
+            else {
+                boolean found=false;
+                for(Movie movie: usersInfo.get(username).getMovies()){
+                    if(movie.getName().equals(moviename)){
+                        found=true;
+                        toRemove=movie;
+                        break;
+                    }
+                }
+                if(!found) error=true;
+            }
+
+            if(error){
+                connections.send(connectionId, "ERROR request return failed");
+                return;
+            }
+            else{
+                Integer moviePrice = moviesInfo.get(moviename).getPrice().get();
+                Integer copies = moviesInfo.get(moviename).getAvailableAmount();
+
+                usersInfo.get(username).getMovies().remove(toRemove);
+                moviesInfo.get(moviename).setAvailableAmount(copies+1);
+
+                System.out.println(usersInfo.get(username));
+                System.out.println(moviesInfo.get(moviename));
+
+                connections.send(connectionId,"ACK return \""+moviename+"\" success");
+                //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);//TODO: another thread
+            }
+
         }
         else {
+            int pos1 = str.indexOf(" ");
+            String requestType = str.substring(0,pos1);
+            str = str.substring(pos1+2);
             //case admin
+            if(!usersInfo.get(username).getType().equals("admin")){
+                connections.send(connectionId,"ERROR request "+requestType+" failed");
+            }
+            else{
+
+                int pos3 = str.indexOf("\"");
+
+                String moviename=str.substring(0,pos3);
+                System.out.println("im in else");
+
+
+
+                //addmovie
+                if(requestType.equals("addmovie")){
+                    //2 - movie already exists
+                    if(moviesInfo.containsKey(moviename)){
+                        connections.send(connectionId,"ERROR request "+requestType+" failed");
+                        return;
+                    }
+
+
+
+
+
+                    else{
+
+                        str=str.substring(pos3+2);
+                        System.out.println("i read addmovie");
+
+                        int pos4=str.indexOf(" ");
+                        String amount = str.substring(0,pos4);
+                        str=str.substring(pos4+1);
+
+                        pos4 = str.indexOf(" ");
+                        System.out.println(str+"######"+pos4);
+                        String price;
+                        ArrayList<String> bannedcountries = new ArrayList<>();
+
+                        if(pos4==-1){
+                            price = str;
+                        }
+                        else{//yes banned country
+                            price=str.substring(0,pos4);
+                            str=str.substring(pos4+1);
+                            int pos = str.indexOf(" ");
+                            while(pos!=-1){
+                                int start = str.indexOf("\"");
+                                int end = str.indexOf("\"", start +1);
+                                bannedcountries.add(str.substring(start+1,end));
+                                str=str.substring(end+1);
+
+                                pos = str.indexOf(" ");
+                            }
+                        }
+
+
+                        if(Integer.parseInt(amount)<=0 || Integer.parseInt(price)<=0){
+                            connections.send(connectionId,"ERROR request "+requestType+" failed");
+                            return;
+                        }
+
+                        System.out.println("PRICE: "+price+" AMOUNT: "+amount);
+                        Movie toAdd = new Movie();
+                        toAdd.setId(++maxMovieId);
+                        toAdd.setName(moviename);
+                        toAdd.setPrice(Integer.parseInt(price));
+                        toAdd.setTotalAmount(Integer.parseInt(amount));
+                        toAdd.setAvailableAmount(Integer.parseInt(amount));
+                        toAdd.setBannedCountries(bannedcountries);
+
+                        moviesInfo.put(moviename,toAdd);
+                        movies.add(toAdd);
+
+                        connections.send(connectionId,"ACK addmovie \""+moviename+"\" success");
+
+                        System.out.println(moviesInfo.get(moviename).getName());
+
+
+//                        connections.broadcast("BROADCAST movie \""+moviename+"\" "
+//                                +Integer.parseInt(amount)+" "+Integer.parseInt(price));//TODO: broadcastas
+
+
+                    }
+
+                }
+                //remove movie
+                else if(requestType.equals("remmovie")) {
+
+                    if(!moviesInfo.containsKey(moviename)){
+                        connections.send(connectionId,"ERROR request remmovie failed");
+                        return;
+                    }
+                    else{
+                        if(moviesInfo.get(moviename).getAvailableAmount()!=moviesInfo.get(moviename).getTotalAmount()){
+                            connections.send(connectionId,"ERROR request remmovie failed");
+                            return;
+                        }
+                        else{
+                            Movie toRemove = moviesInfo.get(moviename);
+                            moviesInfo.remove(toRemove);
+                            movies.remove(toRemove);
+                            connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
+                            //connections.broadcast("BROADCAST movie"+moviename+" removed");
+
+                        }
+                    }
+
+                }
+                // change price
+                else if(requestType.equals("changeprice")) {
+
+                    if(!moviesInfo.containsKey(moviename)){
+                        connections.send(connectionId,"ERROR request changeprice failed");
+                        return;
+                    }
+                    else{
+                        int pos2 = str.lastIndexOf(" ");
+                        Integer price = Integer.parseInt(str.substring(pos2+1));
+
+                        if(price<=0){
+                            connections.send(connectionId,"ERROR request changeprice failed");
+                            return;
+                        }
+                        else{
+                            Integer copies = moviesInfo.get(moviename).getAvailableAmount();
+
+                            moviesInfo.get(moviename).setPrice(price);
+                            connections.send(connectionId,"ACK changeprice \""+moviename+"\" success");
+                            //connections.broadcast("BROADCAST movie \""+moviename+"\" "+copies+" "+price);//TODO: broadcast
+                        }
+
+                    }
+
+                }
+
+
+
+            }
+
+
+
         }
 
 

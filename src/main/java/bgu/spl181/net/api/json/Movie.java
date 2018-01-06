@@ -12,29 +12,29 @@ public class Movie implements Serializable
 
     @SerializedName("id")
     @Expose
-    private String id;
+    private Integer id;
     @SerializedName("name")
     @Expose
     private String name;
     @SerializedName("price")
     @Expose
-    private AtomicInteger price;
+    private AtomicInteger price = new AtomicInteger();
     @SerializedName("bannedCountries")
     @Expose
     private List<String> bannedCountries = null;
     @SerializedName("availableAmount")
     @Expose
-    private AtomicInteger availableAmount;
+    private AtomicInteger availableAmount = new AtomicInteger();
     @SerializedName("totalAmount")
     @Expose
     private Integer totalAmount;
 
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

@@ -46,7 +46,7 @@ public class TPCMain {
         Server.threadPerClient(
 
                 port, //port
-                new MovieMessagingProtocol<>(users,movies), //protocol factory
+                new MovieMessagingProtocol<>(users,movies), //protocol factory//TODO: why lambda
                 MessageEncoderDecoderImpl::new //message encoder decoder factory
         ).serve();
 

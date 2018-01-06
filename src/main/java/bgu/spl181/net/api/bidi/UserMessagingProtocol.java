@@ -17,7 +17,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
     protected ConcurrentHashMap<String,User> usersInfo;
 
 
-    protected ConnectionsImpl connections;
+    protected ConnectionsImpl connections;//TODO: protected
     protected Integer connectionId;
 
 

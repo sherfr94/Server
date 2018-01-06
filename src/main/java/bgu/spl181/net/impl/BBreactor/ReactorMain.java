@@ -23,7 +23,7 @@ public class ReactorMain {
         MoviesList movies = gson.fromJson(reader2, MoviesList.class);
 
 
-        int port = Integer.parseInt(args[0]);
+        int port = Integer.parseInt("8888");
 
         Server.reactor(
                 Runtime.getRuntime().availableProcessors(),

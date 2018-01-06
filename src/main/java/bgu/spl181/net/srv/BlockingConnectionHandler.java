@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
 import bgu.spl181.net.srv.bidi.ConnectionHandler;
 public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
@@ -49,7 +50,9 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
                 if (nextMessage != null) {
                     protocol.process(nextMessage);
 
-//                    T response = protocol.process(nextMessage);
+                    //((MovieMessagingProtocol)protocol).connections.broadcast("YEAAAA");
+
+//                    T response = protocol.process(nextMessage);//TODO: broadcast here
 //                    if (response != null) {
 //                        out.write(encdec.encode(response));
 //                        out.flush();
