@@ -2,6 +2,7 @@ package bgu.spl181.net.api.json;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -17,17 +18,17 @@ public class Movie implements Serializable
     private String name;
     @SerializedName("price")
     @Expose
-    private String price;
+    private AtomicInteger price;
     @SerializedName("bannedCountries")
     @Expose
     private List<String> bannedCountries = null;
     @SerializedName("availableAmount")
     @Expose
-    private String availableAmount;
+    private AtomicInteger availableAmount;
     @SerializedName("totalAmount")
     @Expose
-    private String totalAmount;
-    private final static long serialVersionUID = 201720431157349819L;
+    private Integer totalAmount;
+
 
     public String getId() {
         return id;
@@ -45,12 +46,12 @@ public class Movie implements Serializable
         this.name = name;
     }
 
-    public String getPrice() {
+    public AtomicInteger getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
-        this.price = price;
+    public void setPrice(Integer price) {
+        this.price.set(price);
     }
 
     public List<String> getBannedCountries() {
@@ -61,19 +62,19 @@ public class Movie implements Serializable
         this.bannedCountries = bannedCountries;
     }
 
-    public String getAvailableAmount() {
-        return availableAmount;
+    public Integer getAvailableAmount() {
+        return availableAmount.get();
     }
 
-    public void setAvailableAmount(String availableAmount) {
-        this.availableAmount = availableAmount;
+    public void setAvailableAmount(Integer availableAmount) {
+        this.availableAmount.set(availableAmount);
     }
 
-    public String getTotalAmount() {
+    public Integer getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(String totalAmount) {
+    public void setTotalAmount(Integer totalAmount) {
         this.totalAmount = totalAmount;
     }
 
@@ -90,5 +91,17 @@ public class Movie implements Serializable
                 + availableAmount + " "
                 + price
                 + banned;
+    }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", bannedCountries=" + bannedCountries +
+                ", availableAmount=" + availableAmount +
+                ", totalAmount=" + totalAmount +
+                '}';
     }
 }

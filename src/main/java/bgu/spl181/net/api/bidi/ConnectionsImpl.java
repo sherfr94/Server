@@ -10,6 +10,15 @@ public class ConnectionsImpl<T> implements Connections<T>{
 
     private AtomicInteger connectionId = new AtomicInteger(0);
     private ConcurrentHashMap<Integer, ConnectionHandler<T>> connections =new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, String> loggedIn =new ConcurrentHashMap<>();
+
+    public ConcurrentHashMap<Integer, String> getLoggedIn() {
+        return loggedIn;
+    }
+
+    public void setLoggedIn(ConcurrentHashMap<Integer, String> loggedIn) {
+        this.loggedIn = loggedIn;
+    }
 
     public int getNewConnectionId(){
         return connectionId.getAndIncrement();
@@ -31,8 +40,8 @@ public class ConnectionsImpl<T> implements Connections<T>{
     }
 
     public void broadcast(T msg) {
-        connections.forEach( (k,v) -> v.send(msg) );
-    }
+        loggedIn.forEach( (k,v) -> connections.get(k).send(msg));
+    }//TODO: SHAPO
 
     public void disconnect(int connectionId) throws IOException {
         connections.get(connectionId).close();

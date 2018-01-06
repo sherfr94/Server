@@ -28,7 +28,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         this.users= (ArrayList) users.getUsers();
         this.passwords=new ConcurrentHashMap<>();
         this.usersInfo=new ConcurrentHashMap<>();
-        this.loggedIn = new ConcurrentHashMap<>();
+
 
         for(User user : this.users) {
             passwords.put(user.getUsername(),user.getPassword());
@@ -49,7 +49,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         //TODO which connection handler
         this.connections=(ConnectionsImpl)connections;
         this.connectionId=connectionId;
-
+        this.loggedIn = this.connections.getLoggedIn();
 
     }
 
@@ -89,9 +89,11 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         else {
             connections.send(connectionId,"ERROR login failed");
         }
+
+
     }
 
-    private void register(String str){
+    protected void register(String str){
         boolean error = false;
         int pos2 = str.indexOf(" ");
         //3 missing username / password
@@ -187,6 +189,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         else{
             System.out.println("#2");
             loggedIn.remove(connectionId);
+
             connections.send(connectionId,"ACK signout succeeded");
         }
     }
