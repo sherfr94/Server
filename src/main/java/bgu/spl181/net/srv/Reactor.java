@@ -2,6 +2,8 @@ package bgu.spl181.net.srv;
 
 import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl181.net.api.bidi.Connections;
+import bgu.spl181.net.api.bidi.ConnectionsImpl;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,6 +22,7 @@ public class Reactor<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
+    private ConnectionsImpl connections;
 
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
@@ -34,6 +37,7 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
+        this.connections=new ConnectionsImpl();
     }
 
     @Override
@@ -60,6 +64,7 @@ public class Reactor<T> implements Server<T> {
                         continue;
                     } else if (key.isAcceptable()) {
                         handleAccept(serverSock, selector);
+
                     } else {
                         handleReadWrite(key);
                     }
@@ -101,7 +106,16 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
+
+        int connectionId = connections.getNewConnectionId();
+        connections.add(connectionId,handler);
+        protocolFactory.get().start(connectionId,connections);
+        System.out.println("connected "+connectionId);
+
+
         clientChan.register(selector, SelectionKey.OP_READ, handler);
+
+
     }
 
     private void handleReadWrite(SelectionKey key) {
