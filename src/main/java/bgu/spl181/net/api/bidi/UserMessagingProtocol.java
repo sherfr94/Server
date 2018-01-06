@@ -9,26 +9,30 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Supplier<BidiMessagingProtocol<T>> {
+public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Supplier<BidiMessagingProtocol<T>> {
 
-    private ArrayList<User> users;
-    private ConcurrentHashMap<Integer,String> loggedIn;
-    private ConcurrentHashMap<String,String> passwords;
+    protected ArrayList<User> users;
+    protected ConcurrentHashMap<Integer,String> loggedIn;
+    protected ConcurrentHashMap<String,String> passwords;
+    protected ConcurrentHashMap<String,User> usersInfo;
 
-    private ConnectionsImpl connections;
-    private Integer connectionId;
+
+    protected ConnectionsImpl connections;
+    protected Integer connectionId;
 
 
     public UserMessagingProtocol() {
     }
 
     public UserMessagingProtocol(UsersList users) {
-        this.users= (ArrayList<User>) users.getUsers();
+        this.users= (ArrayList) users.getUsers();
         this.passwords=new ConcurrentHashMap<>();
+        this.usersInfo=new ConcurrentHashMap<>();
         this.loggedIn = new ConcurrentHashMap<>();
 
         for(User user : this.users) {
             passwords.put(user.getUsername(),user.getPassword());
+            usersInfo.put(user.getUsername(),user);
         }
     }
 
@@ -145,6 +149,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         if(!error){
             users.add(newUser);
             passwords.put(newUser.getUsername(),newUser.getPassword());
+            usersInfo.put(newUser.getUsername(),newUser);
             connections.send(connectionId,"ACK registration succeeded");
 
             System.out.println(newUser);
@@ -152,9 +157,26 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     }
 
-    private void request(String str){
+    private void requestUser(String str){
+        int pos1 = str.indexOf(" ");
+        String result;
+        if (pos1==-1){
+            result = str;
+        }
+        else{
+            result = str.substring(0,pos1);
+        }
 
+        if(!loggedIn.containsKey(connectionId)){
+            connections.send(connectionId,"ERROR request "+result+" failed");
+        }
+        else{
+            request(str);
+
+        }
     }
+
+    protected abstract void request(String str);
 
     private void signout() {
         boolean error = false;
@@ -172,11 +194,8 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     @Override
     public void process(Object message) {
 
-
         String str = (String)message;
         System.out.println("str: "+str);
-
-
 
         if(str.equals("SIGNOUT")){
             System.out.println("#");
@@ -195,7 +214,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
                 register(str);
             }
             else if(first.equals("REQUEST")){
-                request(str);
+                requestUser(str);
             }
 
         }

@@ -76,4 +76,19 @@ public class Movie implements Serializable
     public void setTotalAmount(String totalAmount) {
         this.totalAmount = totalAmount;
     }
+
+    public String info() {
+        String banned=" ";
+
+        for(String country: bannedCountries){
+            banned=banned+"\""+country+"\" ";
+        }
+
+        banned=banned.substring(0,banned.length()-1);
+
+        return "\"" + name + "\" "
+                + availableAmount + " "
+                + price
+                + banned;
+    }
 }
