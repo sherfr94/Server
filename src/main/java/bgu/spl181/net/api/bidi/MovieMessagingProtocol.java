@@ -1,9 +1,6 @@
 package bgu.spl181.net.api.bidi;
 
-import bgu.spl181.net.api.json.Movie;
-import bgu.spl181.net.api.json.MoviesList;
-import bgu.spl181.net.api.json.User;
-import bgu.spl181.net.api.json.UsersList;
+import bgu.spl181.net.api.json.*;
 import com.google.gson.Gson;
 
 import java.io.FileWriter;
@@ -30,7 +27,8 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
         for(Movie movie : this.movies){
             moviesInfo.put(movie.getName(),movie);
-            if(movie.getId()>maxMovieId) maxMovieId=movie.getId();
+            Integer intId = Integer.parseInt(movie.getId());
+            if(intId>maxMovieId) maxMovieId=intId;
         }
 
     }
@@ -122,7 +120,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         }
         //1 - you don't have enough money
         else{//TODO: what if admin changes price while renting movie
-            Integer moviePrice = moviesInfo.get(moviename).getPrice().get();
+            Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer userBalance = usersInfo.get(username).getBalance();
             if(moviePrice>userBalance){
                 error = true;
@@ -139,13 +137,13 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             updateMoviesJSON();
 
             //remove balnce by cost
-            Integer moviePrice = moviesInfo.get(moviename).getPrice().get();
+            Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer userBalance = usersInfo.get(username).getBalance();
 
             usersInfo.get(username).setBalance(userBalance-moviePrice);
 
             //add to user movie list
-            usersInfo.get(username).getMovies().add(moviesInfo.get(moviename));
+            usersInfo.get(username).getMovies().add(new UserMovie(moviesInfo.get(moviename).getId(), moviename));
             updateUsersJSON();
 
             connections.send(connectionId,"ACK rent \""+moviename+"\" success");
@@ -160,7 +158,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         int pos2 = str.lastIndexOf("\"");
         String moviename= str.substring(pos1+1, pos2);
 
-        Movie toRemove = new Movie();
+        UserMovie toRemove = new UserMovie();
         boolean error=false;
 
         //3 - movie doesn't exist
@@ -168,7 +166,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             //2 - user not renting
         else {
             boolean found=false;
-            for(Movie movie: usersInfo.get(username).getMovies()){
+            for(UserMovie movie: usersInfo.get(username).getMovies()){
                 if(movie.getName().equals(moviename)){
                     found=true;
                     toRemove=movie;
@@ -183,7 +181,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             return;
         }
         else{
-            Integer moviePrice = moviesInfo.get(moviename).getPrice().get();
+            Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer copies = moviesInfo.get(moviename).getAvailableAmount();
 
             usersInfo.get(username).getMovies().remove(toRemove);
@@ -244,9 +242,10 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 return;
             }
 
-            System.out.println("PRICE: "+price+" AMOUNT: "+amount);
+            //System.out.println("PRICE: "+price+" AMOUNT: "+amount);
             Movie toAdd = new Movie();
-            toAdd.setId(++maxMovieId);
+            maxMovieId = maxMovieId+1;
+            toAdd.setId(maxMovieId.toString());
             toAdd.setName(moviename);
             toAdd.setPrice(Integer.parseInt(price));
             toAdd.setTotalAmount(Integer.parseInt(amount));
@@ -259,11 +258,11 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
             connections.send(connectionId,"ACK addmovie \""+moviename+"\" success");
 
-            System.out.println(moviesInfo.get(moviename).getName());
+            //System.out.println(moviesInfo.get(moviename).getName());
 
 
-//                        connections.broadcast("BROADCAST movie \""+moviename+"\" "
-//                                +Integer.parseInt(amount)+" "+Integer.parseInt(price));//TODO: broadcastas
+                        connections.broadcast("BROADCAST movie \""+moviename+"\" "
+                                +Integer.parseInt(amount)+" "+Integer.parseInt(price));//TODO: broadcastas
 
 
         }
@@ -290,7 +289,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 movies.remove(toRemove);
                 updateMoviesJSON();
                 connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
-                //connections.broadcast("BROADCAST movie"+moviename+" removed");
+                connections.broadcast("BROADCAST movie"+moviename+" removed");
 
             }
         }

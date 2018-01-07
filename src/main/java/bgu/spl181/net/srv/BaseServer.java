@@ -6,8 +6,10 @@ import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.api.bidi.ConnectionsImpl;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.Instant;
 import java.util.function.Supplier;
 
 public abstract class BaseServer<T> implements Server<T> {
@@ -33,7 +35,9 @@ public abstract class BaseServer<T> implements Server<T> {
     public void serve() {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
-			System.out.println("Server started");
+			System.out.println(Instant.now()+" | Server started");
+            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
+
 
             this.sock = serverSock; //just to be able to close
 
@@ -51,7 +55,7 @@ public abstract class BaseServer<T> implements Server<T> {
                 connections.add(connectionId, handler);
                 protocolFactory.get().start(connectionId,connections);
 
-                System.out.println("connected: "+connectionId);//TODO: remove
+                System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//TODO: remove
 
 
                 execute(handler);
@@ -59,7 +63,7 @@ public abstract class BaseServer<T> implements Server<T> {
         } catch (IOException ex) {
         }
 
-        System.out.println("server closed!!!");
+        System.out.println(Instant.now()+" | Server closed");
     }
 
     @Override

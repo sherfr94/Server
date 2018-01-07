@@ -9,49 +9,53 @@ import com.google.gson.annotations.SerializedName;
 
 public class Movie implements Serializable
 {
-
     @SerializedName("id")
     @Expose
-    private Integer id;
+    protected String id;
     @SerializedName("name")
     @Expose
-    private String name;
+    protected String name;
+
     @SerializedName("price")
     @Expose
-    private AtomicInteger price = new AtomicInteger();
+    private String price;
     @SerializedName("bannedCountries")
     @Expose
     private List<String> bannedCountries = null;
     @SerializedName("availableAmount")
     @Expose
-    private AtomicInteger availableAmount = new AtomicInteger();
+    private String availableAmount;
     @SerializedName("totalAmount")
     @Expose
-    private Integer totalAmount;
+    private String totalAmount;
 
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+
+    public void setId(String id) {
         this.id = id;
     }
+
 
     public String getName() {
         return name;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public AtomicInteger getPrice() {
-        return price;
+
+    public Integer getPrice() {
+        return Integer.parseInt(price);
     }
 
-    public void setPrice(Integer price) {
-        this.price.set(price);
+    public synchronized void setPrice(Integer price) {
+        this.price=""+price;
     }
 
     public List<String> getBannedCountries() {
@@ -63,19 +67,19 @@ public class Movie implements Serializable
     }
 
     public Integer getAvailableAmount() {
-        return availableAmount.get();
+        return Integer.parseInt(availableAmount);
     }
 
-    public void setAvailableAmount(Integer availableAmount) {
-        this.availableAmount.set(availableAmount);
+    public synchronized void setAvailableAmount(Integer availableAmount) {
+        this.availableAmount=""+availableAmount;
     }
 
     public Integer getTotalAmount() {
-        return totalAmount;
+        return Integer.parseInt(totalAmount);
     }
 
-    public void setTotalAmount(Integer totalAmount) {
-        this.totalAmount = totalAmount;
+    public synchronized void setTotalAmount(Integer totalAmount) {
+        this.totalAmount = ""+totalAmount;
     }
 
     public String info() {

@@ -27,7 +27,7 @@ public class TPCMain {
         //int port = Integer.parseInt(args[0]);
         int port = Integer.parseInt("8888");
 
-        System.out.println(InetAddress.getLocalHost());
+        //System.out.println(InetAddress.getLocalHost());
 
         Server.threadPerClient(
 

@@ -23,6 +23,14 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     protected ConnectionsImpl connections;
     protected Integer connectionId;
 
+    public ConnectionsImpl getConnections() {
+        return connections;
+    }
+
+    public Integer getConnectionId() {
+        return connectionId;
+    }
+
     public UserMessagingProtocol(UsersList users) {
         this.usersList = users;
         this.users = (ArrayList) users.getUsers();
@@ -132,12 +140,12 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
             updateUsersJSON();//
             connections.send(connectionId, "ACK registration succeeded");
 
-            System.out.println(newUser);
+            //System.out.println(newUser);
         }
 
     }
 
-    protected void updateUsersJSON() throws IOException {
+    protected void updateUsersJSON() throws IOException {//TODO: movies are written like shit
         Gson gson = new Gson();
         FileWriter writer = new FileWriter("Database/Users.json");
         writer.write(gson.toJson(usersList));
@@ -167,10 +175,10 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     private void signout() {
         boolean error = false;
         if (!(loggedIn.containsKey(connectionId))) {
-            System.out.println("#1");
+            //System.out.println("#1");
             connections.send(connectionId, "ERROR signout failed");
         } else {
-            System.out.println("#2");
+            //System.out.println("#2");
             loggedIn.remove(connectionId);
 
             connections.send(connectionId, "ACK signout succeeded");
@@ -181,15 +189,15 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     public void process(Object message) throws IOException {
 
         String str = (String) message;
-        System.out.println("str: " + str);
+        //System.out.println("str: " + str);
 
         if (str.equals("SIGNOUT")) {
-            System.out.println("#");
+            //System.out.println("#");
             signout();
         } else {
             int pos1 = str.indexOf(" ");
             String first = str.substring(0, pos1);
-            System.out.println("first: " + first);
+            //System.out.println("first: " + first);
             str = str.substring(pos1 + 1);
 
             if (first.equals("LOGIN")) {

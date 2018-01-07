@@ -81,7 +81,7 @@ public class Reactor<T> implements Server<T> {
             ex.printStackTrace();
         }
 
-        System.out.println("server closed!!!");
+        System.out.println("Server closed");
         pool.shutdown();
     }
 
@@ -110,7 +110,7 @@ public class Reactor<T> implements Server<T> {
         int connectionId = connections.getNewConnectionId();
         connections.add(connectionId,handler);
         protocolFactory.get().start(connectionId,connections);
-        System.out.println("connected "+connectionId);
+        System.out.println("Client connected \t| connectionId: "+connectionId);//TODO: remove
 
 
         clientChan.register(selector, SelectionKey.OP_READ, handler);

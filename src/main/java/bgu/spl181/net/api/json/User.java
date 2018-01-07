@@ -11,7 +11,7 @@ public class User implements Serializable
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.balance=0;
+        this.balance="0";
         this.country="";
         this.movies=new ArrayList<>();
         this.type="normal";
@@ -32,10 +32,10 @@ public class User implements Serializable
     private String country;
     @SerializedName("movies")
     @Expose
-    private List<Movie> movies = null;
+    private List<UserMovie> movies = null;
     @SerializedName("balance")
     @Expose
-    private Integer balance;
+    private String balance;
 
     public String getUsername() {
         return username;
@@ -69,20 +69,20 @@ public class User implements Serializable
         this.country = country;
     }
 
-    public List<Movie> getMovies() {
+    public List<UserMovie> getMovies() {
         return movies;
     }
 
-    public void setMovies(List<Movie> movies) {
+    public void setMovies(List<UserMovie> movies) {
         this.movies = movies;
     }
 
     public Integer getBalance() {
-        return balance;
+        return Integer.parseInt(balance);
     }
 
     public void setBalance(Integer balance) {
-        this.balance = balance;
+        this.balance = ""+balance;
     }
 
     @Override

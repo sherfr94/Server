@@ -5,6 +5,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.time.Instant;
 
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
@@ -27,7 +28,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         try {
-            System.out.println("#4"+msg);
+            System.out.println(Instant.now()+" | "+msg
+                    +" | connectionId: "+((MovieMessagingProtocol)protocol).getConnectionId());
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {
