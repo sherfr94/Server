@@ -24,20 +24,6 @@ public class TPCMain {
         UsersList users = gson.fromJson(reader1, UsersList.class);
         MoviesList movies = gson.fromJson(reader2, MoviesList.class);
 
-//        System.out.println(users.getUsers().get(1).getMovies().get(0).getName());
-//        System.out.println(movies.getMovies().get(0).getAvailableAmount());
-
-//        for(User user: users.getUsers()){
-//            System.out.println(user.getUsername());
-//        }
-//
-//        for(Movie movie: movies.getMovies()){
-//            System.out.println(movie.getId());
-//            System.out.println(movie.getName());
-//        }
-
-
-
         //int port = Integer.parseInt(args[0]);
         int port = Integer.parseInt("8888");
 

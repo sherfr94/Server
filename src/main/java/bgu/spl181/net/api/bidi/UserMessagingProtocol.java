@@ -9,15 +9,16 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Supplier<BidiMessagingProtocol<T>> {
+public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Supplier<BidiMessagingProtocol<T>> {
 
+    protected UsersList usersList;
     protected ArrayList<User> users;
     protected ConcurrentHashMap<Integer,String> loggedIn;
     protected ConcurrentHashMap<String,String> passwords;
     protected ConcurrentHashMap<String,User> usersInfo;
 
 
-    protected ConnectionsImpl connections;//TODO: protected
+    protected ConnectionsImpl connections;
     protected Integer connectionId;
 
 
@@ -25,7 +26,8 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
     }
 
     public UserMessagingProtocol(UsersList users) {
-        this.users= (ArrayList) users.getUsers();
+        this.usersList = users;
+        this.users=(ArrayList) users.getUsers();
         this.passwords=new ConcurrentHashMap<>();
         this.usersInfo=new ConcurrentHashMap<>();
 
@@ -36,12 +38,6 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         }
     }
 
-
-    // private SharedData sharedData;
-
-   /* public BidiMessagingProtocolImpl(SharedData sharedData) {
-        this.sharedData = sharedData;
-    }*/
 
     //TODO: implement methods
     @Override
@@ -178,7 +174,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
         }
     }
 
-    protected abstract void request(String str);
+    protected void request(String str){}
 
     private void signout() {
         boolean error = false;
@@ -219,9 +215,7 @@ public abstract class UserMessagingProtocol<T> implements BidiMessagingProtocol<
             else if(first.equals("REQUEST")){
                 requestUser(str);
             }
-
         }
-
     }
 
     @Override
