@@ -2,8 +2,11 @@ package bgu.spl181.net.api.bidi;
 
 import bgu.spl181.net.api.json.User;
 import bgu.spl181.net.api.json.UsersList;
+import com.google.gson.Gson;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,206 +16,187 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     protected UsersList usersList;
     protected ArrayList<User> users;
-    protected ConcurrentHashMap<Integer,String> loggedIn;
-    protected ConcurrentHashMap<String,String> passwords;
-    protected ConcurrentHashMap<String,User> usersInfo;
-
+    protected ConcurrentHashMap<Integer, String> loggedIn;
+    protected ConcurrentHashMap<String, String> passwords;
+    protected ConcurrentHashMap<String, User> usersInfo;
 
     protected ConnectionsImpl connections;
     protected Integer connectionId;
 
-
-    public UserMessagingProtocol() {
-    }
-
     public UserMessagingProtocol(UsersList users) {
         this.usersList = users;
-        this.users=(ArrayList) users.getUsers();
-        this.passwords=new ConcurrentHashMap<>();
-        this.usersInfo=new ConcurrentHashMap<>();
+        this.users = (ArrayList) users.getUsers();
+        this.passwords = new ConcurrentHashMap<>();
+        this.usersInfo = new ConcurrentHashMap<>();
 
-
-        for(User user : this.users) {
-            passwords.put(user.getUsername(),user.getPassword());
-            usersInfo.put(user.getUsername(),user);
+        for (User user : this.users) {
+            passwords.put(user.getUsername(), user.getPassword());
+            usersInfo.put(user.getUsername(), user);
         }
     }
 
-
-    //TODO: implement methods
     @Override
     public void start(int connectionId, Connections connections) {
         //TODO which connection handler
-        this.connections=(ConnectionsImpl)connections;
-        this.connectionId=connectionId;
+        this.connections = (ConnectionsImpl) connections;
+        this.connectionId = connectionId;
         this.loggedIn = this.connections.getLoggedIn();
-
     }
 
-    private void login(String str){
+    private void login(String str) {
         boolean error = false;
         int pos2 = str.indexOf(" ");
         String username = str.substring(0, pos2);
-        String password = str.substring(pos2+1);
-        System.out.println("username: "+username);
-        System.out.println("password: "+password);
+        String password = str.substring(pos2 + 1);
 
-        if((passwords.get(username)==null)) {//not in user list
-            System.out.println("error4");
+        if ((passwords.get(username) == null)) {//not in user list
             error = true;
         }
-        if(loggedIn.get(connectionId)!=null && !error) { // case client id is already logged in
-            System.out.println("error1");
-            error=true;
+        if (loggedIn.get(connectionId) != null && !error) { // case client id is already logged in
+            error = true;
         }
-        if(loggedIn.containsValue(username) && !error) { // case other username is already logged in
-            System.out.println("error2");
-
-            error=true;
+        if (loggedIn.containsValue(username) && !error) { // case other username is already logged in
+            error = true;
         }
-        if((passwords.get(username)!=null) && !error) {
+        if ((passwords.get(username) != null) && !error) {
             if (!(passwords.get(username).equals(password))) { // wrong password
-                System.out.println("error3");
                 error = true;
             }
         }
 
-
-        if(!error) {
+        if (!error) {
             loggedIn.put(connectionId, username);
-            connections.send(connectionId,"ACK login succeeded");
+            connections.send(connectionId, "ACK login succeeded");
+        } else {
+            connections.send(connectionId, "ERROR login failed");
         }
-        else {
-            connections.send(connectionId,"ERROR login failed");
-        }
-
 
     }
 
-    protected void register(String str){
+    protected void register(String str) throws IOException {
         boolean error = false;
         int pos2 = str.indexOf(" ");
         //3 missing username / password
-        if(pos2==-1) {
-            connections.send(connectionId,"ERROR register failed");
+        if (pos2 == -1) {
+            connections.send(connectionId, "ERROR register failed");
             return;
         }
 
         String username = str.substring(0, pos2);
-        str=str.substring(pos2+1);
+        str = str.substring(pos2 + 1);
         String password;
         User newUser;
 
         //1
-        if(!error && loggedIn.containsKey(connectionId)){
-            error=true;
+        if (!error && loggedIn.containsKey(connectionId)) {
+            error = true;
         }
         //2
-        if(!error && passwords.containsKey(username)){
-            error=true;
+        if (!error && passwords.containsKey(username)) {
+            error = true;
         }
 
-        if(error){
-            connections.send(connectionId,"ERROR register failed");
+        if (error) {
+            connections.send(connectionId, "ERROR register failed");
             return;
         }
 
         int pos3 = str.indexOf(" ");
-        if(pos3==-1){ //no country
+        if (pos3 == -1) { //no country
             password = str;
-            newUser = new User(username,password);
-            //TODO: json update
+            newUser = new User(username, password);
 
-        }
-        else{//yes country
+        } else {//yes country
 
-            password = str.substring(0,pos3);
-            str=str.substring(pos3+1);
+            password = str.substring(0, pos3);
+            str = str.substring(pos3 + 1);
 
             //4 //TODO: check more country problems
-            if(!str.contains("country=\"")){
-                connections.send(connectionId,"ERROR register failed");
+            if (!str.contains("country=\"")) {
+                connections.send(connectionId, "ERROR register failed");
                 return;
             }
 
             int pos4 = str.indexOf("\"");
-            String country=str.substring(pos4+1,str.length()-1);
+            String country = str.substring(pos4 + 1, str.length() - 1);
 
-            newUser = new User(username,password);
+            newUser = new User(username, password);
             newUser.setCountry(country);
-
-
         }
 
-        if(!error){
+        if (!error) {
             users.add(newUser);
-            passwords.put(newUser.getUsername(),newUser.getPassword());
-            usersInfo.put(newUser.getUsername(),newUser);
-            connections.send(connectionId,"ACK registration succeeded");
+            passwords.put(newUser.getUsername(), newUser.getPassword());
+            usersInfo.put(newUser.getUsername(), newUser);
+
+            updateUsersJSON();//
+            connections.send(connectionId, "ACK registration succeeded");
 
             System.out.println(newUser);
         }
 
     }
 
-    private void requestUser(String str){
+    protected void updateUsersJSON() throws IOException {
+        Gson gson = new Gson();
+        FileWriter writer = new FileWriter("Database/Users.json");
+        writer.write(gson.toJson(usersList));
+        writer.close();
+    }
+
+    private void requestUser(String str) throws IOException {
         int pos1 = str.indexOf(" ");
         String result;
-        if (pos1==-1){
+        if (pos1 == -1) {
             result = str;
-        }
-        else{
-            result = str.substring(0,pos1);
+        } else {
+            result = str.substring(0, pos1);
         }
 
-        if(!loggedIn.containsKey(connectionId)){
-            connections.send(connectionId,"ERROR request "+result+" failed");
-        }
-        else{
+        if (!loggedIn.containsKey(connectionId)) {
+            connections.send(connectionId, "ERROR request " + result + " failed");
+        } else {
             request(str);
 
         }
     }
 
-    protected void request(String str){}
+    protected void request(String str) throws IOException {
+    }
 
     private void signout() {
         boolean error = false;
-        if(!(loggedIn.containsKey(connectionId))){
+        if (!(loggedIn.containsKey(connectionId))) {
             System.out.println("#1");
-            connections.send(connectionId,"ERROR signout failed");
-        }
-        else{
+            connections.send(connectionId, "ERROR signout failed");
+        } else {
             System.out.println("#2");
             loggedIn.remove(connectionId);
 
-            connections.send(connectionId,"ACK signout succeeded");
+            connections.send(connectionId, "ACK signout succeeded");
         }
     }
 
     @Override
-    public void process(Object message) {
+    public void process(Object message) throws IOException {
 
-        String str = (String)message;
-        System.out.println("str: "+str);
+        String str = (String) message;
+        System.out.println("str: " + str);
 
-        if(str.equals("SIGNOUT")){
+        if (str.equals("SIGNOUT")) {
             System.out.println("#");
             signout();
-        }
-        else{
+        } else {
             int pos1 = str.indexOf(" ");
-            String first = str.substring(0,pos1);
-            System.out.println("first: "+first);
-            str = str.substring(pos1+1);
+            String first = str.substring(0, pos1);
+            System.out.println("first: " + first);
+            str = str.substring(pos1 + 1);
 
-            if(first.equals("LOGIN")){
+            if (first.equals("LOGIN")) {
                 login(str);
-            }
-            else if(first.equals("REGISTER")){
+            } else if (first.equals("REGISTER")) {
                 register(str);
-            }
-            else if(first.equals("REQUEST")){
+            } else if (first.equals("REQUEST")) {
                 requestUser(str);
             }
         }

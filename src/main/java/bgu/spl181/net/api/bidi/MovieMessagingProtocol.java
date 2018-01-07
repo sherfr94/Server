@@ -4,7 +4,10 @@ import bgu.spl181.net.api.json.Movie;
 import bgu.spl181.net.api.json.MoviesList;
 import bgu.spl181.net.api.json.User;
 import bgu.spl181.net.api.json.UsersList;
+import com.google.gson.Gson;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,11 +35,19 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
+    protected void updateMoviesJSON() throws IOException {
+        Gson gson = new Gson();
+        FileWriter writer = new FileWriter("Database/Movies.json");
+        writer.write(gson.toJson(moviesList));
+        writer.close();
+    }
+
     //Register to movie service must have country!
     @Override
-    protected void register(String str) {
+    protected void register(String str) throws IOException {
 
-        if(!str.contains("country= \"")){
+        if(!str.contains("country=\"")){
+
             connections.send(connectionId,"ERROR register failed");
             return;
         }
@@ -52,12 +63,13 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
-    protected void balanceAdd(String str){
+    protected void balanceAdd(String str) throws IOException {
         String username = this.loggedIn.get(connectionId);
         str = str.substring(str.lastIndexOf(" ")+1);
         Integer amount = Integer.parseInt(str);
         Integer balance = usersInfo.get(username).getBalance();
         usersInfo.get(username).setBalance(balance+amount);
+        updateUsersJSON();
         connections.send(connectionId,"ACK balance "+(balance+amount)+" added "+amount);
     }
 
@@ -83,7 +95,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
     }
 
 
-    protected void rentMovie(String str){
+    protected void rentMovie(String str) throws IOException {
         String username = this.loggedIn.get(connectionId);
         String country = usersInfo.get(username).getCountry();
         boolean error=false;
@@ -124,6 +136,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             //reduce availabe amount
             Integer copies = moviesInfo.get(moviename).getAvailableAmount();
             moviesInfo.get(moviename).setAvailableAmount(copies-1);
+            updateMoviesJSON();
 
             //remove balnce by cost
             Integer moviePrice = moviesInfo.get(moviename).getPrice().get();
@@ -133,6 +146,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
             //add to user movie list
             usersInfo.get(username).getMovies().add(moviesInfo.get(moviename));
+            updateUsersJSON();
 
             connections.send(connectionId,"ACK rent \""+moviename+"\" success");
             //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);//TODO: another thread
@@ -140,7 +154,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
-    protected void returnMovie(String str){
+    protected void returnMovie(String str) throws IOException {
         String username = this.loggedIn.get(connectionId);
         int pos1 = str.indexOf("\"");
         int pos2 = str.lastIndexOf("\"");
@@ -173,10 +187,9 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             Integer copies = moviesInfo.get(moviename).getAvailableAmount();
 
             usersInfo.get(username).getMovies().remove(toRemove);
+            updateUsersJSON();
             moviesInfo.get(moviename).setAvailableAmount(copies+1);
-
-            System.out.println(usersInfo.get(username));
-            System.out.println(moviesInfo.get(moviename));
+            updateMoviesJSON();
 
             connections.send(connectionId,"ACK return \""+moviename+"\" success");
             //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);//TODO: another thread
@@ -187,7 +200,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     //admin
 
-    protected void addMovie(String str){
+    protected void addMovie(String str) throws IOException {
         int pos3 = str.indexOf("\"");
         String moviename=str.substring(0,pos3);
         //2 - movie already exists
@@ -242,6 +255,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
             moviesInfo.put(moviename,toAdd);
             movies.add(toAdd);
+            updateMoviesJSON();
 
             connections.send(connectionId,"ACK addmovie \""+moviename+"\" success");
 
@@ -256,7 +270,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
-    protected void remMovie(String str){
+    protected void remMovie(String str) throws IOException {
 
         int pos3 = str.indexOf("\"");
         String moviename=str.substring(0,pos3);
@@ -274,6 +288,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 Movie toRemove = moviesInfo.get(moviename);
                 moviesInfo.remove(toRemove);
                 movies.remove(toRemove);
+                updateMoviesJSON();
                 connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
                 //connections.broadcast("BROADCAST movie"+moviename+" removed");
 
@@ -282,7 +297,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
-    protected void changePrice(String str){
+    protected void changePrice(String str) throws IOException {
         int pos3 = str.indexOf("\"");
         String moviename=str.substring(0,pos3);
 
@@ -302,6 +317,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 Integer copies = moviesInfo.get(moviename).getAvailableAmount();
 
                 moviesInfo.get(moviename).setPrice(price);
+                updateMoviesJSON();
                 connections.send(connectionId,"ACK changeprice \""+moviename+"\" success");
                 //connections.broadcast("BROADCAST movie \""+moviename+"\" "+copies+" "+price);//TODO: broadcast
             }
@@ -313,7 +329,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
 
     @Override
-    protected void request(String str) {
+    protected void request(String str) throws IOException {
 
         String username = this.loggedIn.get(connectionId);
 
