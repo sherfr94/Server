@@ -210,6 +210,10 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         }
     }
 
+    public UsersList getUsersList() {
+        return usersList;
+    }
+
     @Override
     public boolean shouldTerminate() {
         return false;
@@ -217,6 +221,8 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     @Override
     public BidiMessagingProtocol<T> get() {
-        return this;
+        UserMessagingProtocol mmp = new UserMessagingProtocol(usersList);
+        mmp.start(connectionId, connections);
+        return mmp;
     }
 }

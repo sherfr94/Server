@@ -92,6 +92,16 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         connections.send(connectionId,"ACK info "+moviesInfo.get(moviename).info());
     }
 
+    public MoviesList getMoviesList() {
+        return moviesList;
+    }
+
+    @Override
+    public BidiMessagingProtocol<T> get() {
+        MovieMessagingProtocol mmp = new MovieMessagingProtocol(usersList, moviesList);
+        mmp.start(connectionId, connections);
+        return mmp;
+    }
 
     protected void rentMovie(String str) throws IOException {
         String username = this.loggedIn.get(connectionId);

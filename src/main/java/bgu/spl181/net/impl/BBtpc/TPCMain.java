@@ -28,11 +28,14 @@ public class TPCMain {
         int port = Integer.parseInt("8888");
 
         //System.out.println(InetAddress.getLocalHost());
+        MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(users,movies);
+        mmp.start(0, new ConnectionsImpl());
+
 
         Server.threadPerClient(
 
                 port, //port
-                new MovieMessagingProtocol<>(users,movies), //protocol factory//TODO: why lambda
+                mmp, //protocol factory//TODO: why lambda
                 MessageEncoderDecoderImpl::new //message encoder decoder factory
         ).serve();
 

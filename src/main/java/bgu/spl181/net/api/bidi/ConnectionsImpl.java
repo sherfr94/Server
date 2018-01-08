@@ -21,7 +21,10 @@ public class ConnectionsImpl<T> implements Connections<T>{
     }
 
     public int getNewConnectionId(){
-        return connectionId.getAndIncrement();
+
+        connectionId.getAndIncrement();
+        int newConnection = connectionId.get();
+        return newConnection;
     }
 
     public boolean send(int connectionId, T msg) {

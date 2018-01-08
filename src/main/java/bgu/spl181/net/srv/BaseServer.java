@@ -4,6 +4,7 @@ import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.api.bidi.ConnectionsImpl;
+import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -18,7 +19,7 @@ public abstract class BaseServer<T> implements Server<T> {
     private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
-    private ConnectionsImpl connections = new ConnectionsImpl();
+    ConnectionsImpl connections;
 
     public BaseServer(
             int port,
@@ -29,6 +30,7 @@ public abstract class BaseServer<T> implements Server<T> {
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
 		this.sock = null;
+
     }
 
     @Override
@@ -45,18 +47,22 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
+                MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(((MovieMessagingProtocol)protocolFactory).getUsersList(),
+                        ((MovieMessagingProtocol)protocolFactory).getMoviesList());
 
                 BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
+                        mmp);
 
+
+                connections = ((MovieMessagingProtocol)protocolFactory).getConnections();
                 Integer connectionId = connections.getNewConnectionId();
                 connections.add(connectionId, handler);
-                protocolFactory.get().start(connectionId,connections);
+                mmp.start(connectionId,connections); //TODO: why this works, try something better, think positive
+
 
                 System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//TODO: remove
-
 
                 execute(handler);
             }
