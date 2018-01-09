@@ -2,6 +2,7 @@ package bgu.spl181.net.api.bidi;
 
 import bgu.spl181.net.api.json.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
     }
 
     protected void updateMoviesJSON() throws IOException {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         FileWriter writer = new FileWriter("Database/Movies.json");
         writer.write(gson.toJson(moviesList));
         writer.close();
@@ -299,7 +300,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 movies.remove(toRemove);
                 updateMoviesJSON();
                 connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
-                connections.broadcast("BROADCAST movie"+moviename+" removed");
+                connections.broadcast("BROADCAST movie \""+moviename+"\" removed");
 
             }
         }

@@ -4,6 +4,7 @@ import bgu.spl181.net.api.MessageEncoderDecoder;
 import bgu.spl181.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl181.net.api.bidi.Connections;
 import bgu.spl181.net.api.bidi.ConnectionsImpl;
+import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,7 +38,9 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
-        this.connections=new ConnectionsImpl();
+
+        connections = ((MovieMessagingProtocol)protocolFactory).getConnections();
+
     }
 
     @Override
@@ -52,6 +55,8 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
+
+
 
             while (!Thread.currentThread().isInterrupted()) {
 
@@ -101,15 +106,22 @@ public class Reactor<T> implements Server<T> {
     private void handleAccept(ServerSocketChannel serverChan, Selector selector) throws IOException {
         SocketChannel clientChan = serverChan.accept();
         clientChan.configureBlocking(false);
+
+        MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(((MovieMessagingProtocol)protocolFactory).getUsersList(),
+                ((MovieMessagingProtocol)protocolFactory).getMoviesList());
+
+
         final NonBlockingConnectionHandler handler = new NonBlockingConnectionHandler(
                 readerFactory.get(),
-                protocolFactory.get(),
+                mmp,//TODO: why not get
                 clientChan,
                 this);
 
+
+
         int connectionId = connections.getNewConnectionId();
         connections.add(connectionId,handler);
-        protocolFactory.get().start(connectionId,connections);
+        mmp.start(connectionId,connections);
         System.out.println("Client connected \t| connectionId: "+connectionId);//TODO: remove
 
 

@@ -3,6 +3,7 @@ package bgu.spl181.net.api.bidi;
 import bgu.spl181.net.api.json.User;
 import bgu.spl181.net.api.json.UsersList;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.org.apache.xpath.internal.SourceTree;
 
 import java.io.FileWriter;
@@ -63,11 +64,11 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         if (loggedIn.get(connectionId) != null && !error) { // case client id is already logged in
             error = true;
         }
-        if (loggedIn.containsValue(username) && !error) { // case other username is already logged in
+        if (loggedIn.containsValue(username) && !error) { // case other username is already logged in//TODO: case sens
             error = true;
         }
         if ((passwords.get(username) != null) && !error) {
-            if (!(passwords.get(username).equals(password))) { // wrong password
+            if (!(passwords.get(username).equals(password))) { // wrong password case sensitive
                 error = true;
             }
         }
@@ -120,7 +121,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
             str = str.substring(pos3 + 1);
 
             //4 //TODO: check more country problems
-            if (!str.contains("country=\"")) {
+            if (!(str.toLowerCase()).contains("country=\"")) {
                 connections.send(connectionId, "ERROR register failed");
                 return;
             }
@@ -146,7 +147,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     }
 
     protected void updateUsersJSON() throws IOException {//TODO: movies are written like shit
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         FileWriter writer = new FileWriter("Database/Users.json");
         writer.write(gson.toJson(usersList));
         writer.close();
@@ -191,7 +192,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         String str = (String) message;
         //System.out.println("str: " + str);
 
-        if (str.equals("SIGNOUT")) {
+        if (str.toLowerCase().equals("signout")) {
             //System.out.println("#");
             signout();
         } else {
@@ -200,11 +201,11 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
             //System.out.println("first: " + first);
             str = str.substring(pos1 + 1);
 
-            if (first.equals("LOGIN")) {
+            if (first.toLowerCase().equals("login")) {
                 login(str);
-            } else if (first.equals("REGISTER")) {
+            } else if (first.toLowerCase().equals("register")) {
                 register(str);
-            } else if (first.equals("REQUEST")) {
+            } else if (first.toLowerCase().equals("request")) {
                 requestUser(str);
             }
         }

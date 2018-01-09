@@ -1,5 +1,6 @@
 package bgu.spl181.net.impl.BBreactor;
 
+import bgu.spl181.net.api.bidi.ConnectionsImpl;
 import bgu.spl181.net.api.bidi.MessageEncoderDecoderImpl;
 import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
 import bgu.spl181.net.api.json.MoviesList;
@@ -23,12 +24,15 @@ public class ReactorMain {
         MoviesList movies = gson.fromJson(reader2, MoviesList.class);
 
 
-        int port = Integer.parseInt("8888");
+        int port = Integer.parseInt("7777");
+
+        MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(users,movies);
+        mmp.start(0, new ConnectionsImpl());
 
         Server.reactor(
                 Runtime.getRuntime().availableProcessors(),
                 port, //port
-                new MovieMessagingProtocol<>(users,movies), //protocol factory
+                mmp, //protocol factory
                 MessageEncoderDecoderImpl::new //message encoder decoder factory
         ).serve();
     }

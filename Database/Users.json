@@ -1,1 +1,59 @@
-{"users":[{"username":"john","type":"admin","password":"potato","country":"united states","movies":[{"id":"1","name":"The Godfather"}],"balance":"504"},{"username":"lisa","type":"normal","password":"chips123","country":"spain","movies":[{"id":"2","name":"The Pursuit Of Happyness"},{"id":"3","name":"The Notebook"},{"id":"5","name":"it"}],"balance":"32"},{"username":"shlomi","type":"normal","password":"cocacola","country":"israel","movies":[{"id":"1","name":"The Godfather"},{"id":"2","name":"The Pursuit Of Happyness"}],"balance":"112"}]}
+{
+  "users": [
+    {
+      "username": "john",
+      "type": "admin",
+      "password": "potato",
+      "country": "united states",
+      "movies": [
+        {
+          "id": "1",
+          "name": "The Godfather"
+        },
+        {
+          "id": "5",
+          "name": "it"
+        }
+      ],
+      "balance": "499"
+    },
+    {
+      "username": "lisa",
+      "type": "normal",
+      "password": "chips123",
+      "country": "spain",
+      "movies": [
+        {
+          "id": "2",
+          "name": "The Pursuit Of Happyness"
+        },
+        {
+          "id": "3",
+          "name": "The Notebook"
+        },
+        {
+          "id": "5",
+          "name": "it"
+        }
+      ],
+      "balance": "32"
+    },
+    {
+      "username": "shlomi",
+      "type": "normal",
+      "password": "cocacola",
+      "country": "israel",
+      "movies": [
+        {
+          "id": "1",
+          "name": "The Godfather"
+        },
+        {
+          "id": "2",
+          "name": "The Pursuit Of Happyness"
+        }
+      ],
+      "balance": "112"
+    }
+  ]
+}
