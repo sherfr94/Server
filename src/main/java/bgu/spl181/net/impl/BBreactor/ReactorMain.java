@@ -30,7 +30,8 @@ public class ReactorMain {
         mmp.start(0, new ConnectionsImpl());
 
         Server.reactor(
-                Runtime.getRuntime().availableProcessors(),
+//                Runtime.getRuntime().availableProcessors(),
+1,
                 port, //port
                 mmp, //protocol factory
                 MessageEncoderDecoderImpl::new //message encoder decoder factory

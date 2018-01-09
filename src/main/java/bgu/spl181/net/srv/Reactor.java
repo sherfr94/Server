@@ -7,12 +7,14 @@ import bgu.spl181.net.api.bidi.ConnectionsImpl;
 import bgu.spl181.net.api.bidi.MovieMessagingProtocol;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
@@ -54,7 +56,8 @@ public class Reactor<T> implements Server<T> {
             serverSock.bind(new InetSocketAddress(port));
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
-			System.out.println("Server started");
+            System.out.println(Instant.now()+" | Server started");
+            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
 
 
 
@@ -122,7 +125,7 @@ public class Reactor<T> implements Server<T> {
         int connectionId = connections.getNewConnectionId();
         connections.add(connectionId,handler);
         mmp.start(connectionId,connections);
-        System.out.println("Client connected \t| connectionId: "+connectionId);//TODO: remove
+        System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//TODO: remove
 
 
         clientChan.register(selector, SelectionKey.OP_READ, handler);

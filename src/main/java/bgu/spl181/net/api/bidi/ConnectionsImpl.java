@@ -28,11 +28,8 @@ public class ConnectionsImpl<T> implements Connections<T>{
     }
 
     public boolean send(int connectionId, T msg) {
-        System.out.println(connectionId);
 
         if (connections.containsKey(connectionId)) {
-            System.out.println("&&&&&");
-            //System.out.println(msg);
             connections.get(connectionId).send(msg);
             return true;
         }
@@ -56,7 +53,6 @@ public class ConnectionsImpl<T> implements Connections<T>{
 
     public void add(Integer id, ConnectionHandler<T> connectionHandler) {
         connections.put(id, connectionHandler);
-        System.out.println("added");
 
     }
 

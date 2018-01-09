@@ -182,7 +182,9 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
             //System.out.println("#2");
             loggedIn.remove(connectionId);
 
+
             connections.send(connectionId, "ACK signout succeeded");
+            connections.getAllConnection().remove(connectionId);
         }
     }
 

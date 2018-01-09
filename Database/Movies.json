@@ -36,7 +36,7 @@
         "iran",
         "lebanon"
       ],
-      "availableAmount": "4",
+      "availableAmount": "3",
       "totalAmount": "4"
     },
     {
@@ -54,14 +54,6 @@
       "bannedCountries": [],
       "availableAmount": "9",
       "totalAmount": "9"
-    },
-    {
-      "id": "8",
-      "name": "momo",
-      "price": "8",
-      "bannedCountries": [],
-      "availableAmount": "8",
-      "totalAmount": "8"
     },
     {
       "id": "9",
@@ -98,6 +90,14 @@
     {
       "id": "14",
       "name": "kaji",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "3",
+      "totalAmount": "3"
+    },
+    {
+      "id": "15",
+      "name": "helo",
       "price": "3",
       "bannedCountries": [],
       "availableAmount": "3",
