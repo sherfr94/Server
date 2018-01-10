@@ -56,9 +56,8 @@ public class Reactor<T> implements Server<T> {
             serverSock.bind(new InetSocketAddress(port));
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
-            System.out.println(Instant.now()+" | Server started");
-            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
-
+            System.out.println("Server started");
+//            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
 
 
             while (!Thread.currentThread().isInterrupted()) {
@@ -125,7 +124,7 @@ public class Reactor<T> implements Server<T> {
         int connectionId = connections.getNewConnectionId();
         connections.add(connectionId,handler);
         mmp.start(connectionId,connections);
-        System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//TODO: remove
+//        System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//
 
 
         clientChan.register(selector, SelectionKey.OP_READ, handler);

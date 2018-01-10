@@ -37,9 +37,8 @@ public abstract class BaseServer<T> implements Server<T> {
     public void serve() {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
-			System.out.println(Instant.now()+" | Server started");
-            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
-
+			System.out.println("Server started");
+//            System.out.println(Instant.now()+" | IP: "+ InetAddress.getLocalHost().getHostAddress()+" | Port: "+port);
 
             this.sock = serverSock; //just to be able to close
 
@@ -59,17 +58,16 @@ public abstract class BaseServer<T> implements Server<T> {
                 connections = ((MovieMessagingProtocol)protocolFactory).getConnections();
                 Integer connectionId = connections.getNewConnectionId();
                 connections.add(connectionId, handler);
-                mmp.start(connectionId,connections); //TODO: why this works, try something better, think positive
+                mmp.start(connectionId,connections); //TODO: think positive
 
-
-                System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//TODO: remove
+//               System.out.println(Instant.now()+" | Client connected | connectionId: "+connectionId);//
 
                 execute(handler);
             }
         } catch (IOException ex) {
         }
 
-        System.out.println(Instant.now()+" | Server closed");
+//        System.out.println(Instant.now()+" | Server closed");
     }
 
     @Override

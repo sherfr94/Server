@@ -23,15 +23,13 @@ public class ReactorMain {
         UsersList users = gson.fromJson(reader1, UsersList.class);
         MoviesList movies = gson.fromJson(reader2, MoviesList.class);
 
-
-        int port = Integer.parseInt("7777");
+        int port = Integer.parseInt(args[0]);
 
         MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(users,movies);
         mmp.start(0, new ConnectionsImpl());
 
         Server.reactor(
-//                Runtime.getRuntime().availableProcessors(),
-1,
+                5,
                 port, //port
                 mmp, //protocol factory
                 MessageEncoderDecoderImpl::new //message encoder decoder factory

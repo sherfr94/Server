@@ -24,6 +24,8 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     protected ConnectionsImpl connections;
     protected Integer connectionId;
 
+    protected Object lock = new Object();
+
     public ConnectionsImpl getConnections() {
         return connections;
     }
@@ -46,7 +48,6 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     @Override
     public void start(int connectionId, Connections connections) {
-        //TODO which connection handler
         this.connections = (ConnectionsImpl) connections;
         this.connectionId = connectionId;
         this.loggedIn = this.connections.getLoggedIn();
@@ -64,7 +65,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         if (loggedIn.get(connectionId) != null && !error) { // case client id is already logged in
             error = true;
         }
-        if (loggedIn.containsValue(username) && !error) { // case other username is already logged in//TODO: case sens
+        if (loggedIn.containsValue(username) && !error) { // case other username is already logged in//
             error = true;
         }
         if ((passwords.get(username) != null) && !error) {
@@ -120,7 +121,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
             password = str.substring(0, pos3);
             str = str.substring(pos3 + 1);
 
-            //4 //TODO: check more country problems
+            //4
             if (!(str.toLowerCase()).contains("country=\"")) {
                 connections.send(connectionId, "ERROR register failed");
                 return;
@@ -134,11 +135,14 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
         }
 
         if (!error) {
-            users.add(newUser);
-            passwords.put(newUser.getUsername(), newUser.getPassword());
-            usersInfo.put(newUser.getUsername(), newUser);
 
-            updateUsersJSON();//
+            synchronized (lock){
+                users.add(newUser);
+                passwords.put(newUser.getUsername(), newUser.getPassword());
+                usersInfo.put(newUser.getUsername(), newUser);
+                updateUsersJSON();
+            }
+
             connections.send(connectionId, "ACK registration succeeded");
 
             //System.out.println(newUser);
@@ -176,12 +180,11 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     private void signout() {
         boolean error = false;
         if (!(loggedIn.containsKey(connectionId))) {
-            //System.out.println("#1");
             connections.send(connectionId, "ERROR signout failed");
-        } else {
-            //System.out.println("#2");
-            loggedIn.remove(connectionId);
 
+        } else {
+
+            loggedIn.remove(connectionId);
 
             connections.send(connectionId, "ACK signout succeeded");
             connections.getAllConnection().remove(connectionId);
@@ -192,15 +195,12 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
     public void process(Object message) throws IOException {
 
         String str = (String) message;
-        //System.out.println("str: " + str);
 
         if (str.toLowerCase().equals("signout")) {
-            //System.out.println("#");
             signout();
         } else {
             int pos1 = str.indexOf(" ");
             String first = str.substring(0, pos1);
-            //System.out.println("first: " + first);
             str = str.substring(pos1 + 1);
 
             if (first.toLowerCase().equals("login")) {

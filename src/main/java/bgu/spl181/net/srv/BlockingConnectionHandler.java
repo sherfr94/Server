@@ -28,8 +28,8 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     @Override
     public void send(T msg) {
         try {
-            System.out.println(Instant.now()+" | "+msg
-                    +" | connectionId: "+((MovieMessagingProtocol)protocol).getConnectionId());
+//            System.out.println(Instant.now()+" | "+msg
+//                    +" | connectionId: "+((MovieMessagingProtocol)protocol).getConnectionId());
             out.write(encdec.encode(msg));
             out.flush();
         } catch (IOException e) {
@@ -48,17 +48,9 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
 
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
                 T nextMessage = encdec.decodeNextByte((byte) read);
-                //System.out.println("nextmesage: "+nextMessage);//TODO: remove
                 if (nextMessage != null) {
                     protocol.process(nextMessage);
 
-                    //((MovieMessagingProtocol)protocol).connections.broadcast("YEAAAA");
-
-//                    T response = protocol.process(nextMessage);//TODO: broadcast here
-//                    if (response != null) {
-//                        out.write(encdec.encode(response));
-//                        out.flush();
-//                    }
                 }
             }
 

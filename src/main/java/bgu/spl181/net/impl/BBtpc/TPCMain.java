@@ -24,13 +24,10 @@ public class TPCMain {
         UsersList users = gson.fromJson(reader1, UsersList.class);
         MoviesList movies = gson.fromJson(reader2, MoviesList.class);
 
-        //int port = Integer.parseInt(args[0]);
-        int port = Integer.parseInt("7777");
+        int port = Integer.parseInt(args[0]);
 
-        //System.out.println(InetAddress.getLocalHost());
         MovieMessagingProtocol mmp = new MovieMessagingProtocol<>(users,movies);
         mmp.start(0, new ConnectionsImpl());
-
 
         Server.threadPerClient(
 

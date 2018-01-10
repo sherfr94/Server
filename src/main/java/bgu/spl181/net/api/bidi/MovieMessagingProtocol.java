@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
@@ -17,7 +16,6 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
     protected ConcurrentHashMap<String,Movie> moviesInfo;
 
     protected Integer maxMovieId = 0;
-
 
 
     public MovieMessagingProtocol(UsersList users, MoviesList movies){
@@ -31,7 +29,6 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             Integer intId = Integer.parseInt(movie.getId());
             if(intId>maxMovieId) maxMovieId=intId;
         }
-
     }
 
     protected synchronized void updateMoviesJSON() throws IOException {
@@ -130,7 +127,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             error=true;
         }
         //1 - you don't have enough money
-        else{//TODO: what if admin changes price while renting movie
+        else{
             Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer userBalance = usersInfo.get(username).getBalance();
             if(moviePrice>userBalance){
@@ -144,10 +141,14 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         else{
             //reduce availabe amount
             Integer copies = moviesInfo.get(moviename).getAvailableAmount();
-            moviesInfo.get(moviename).setAvailableAmount(copies-1);
-            updateMoviesJSON();
 
-            //remove balnce by cost
+            synchronized (lock){
+                moviesInfo.get(moviename).setAvailableAmount(copies-1);
+                updateMoviesJSON();
+            }
+
+
+            //remove balance by cost
             Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer userBalance = usersInfo.get(username).getBalance();
 
@@ -158,7 +159,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             updateUsersJSON();
 
             connections.send(connectionId,"ACK rent \""+moviename+"\" success");
-            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);//TODO: another thread
+            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);
         }
 
     }
@@ -195,13 +196,15 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             Integer moviePrice = moviesInfo.get(moviename).getPrice();
             Integer copies = moviesInfo.get(moviename).getAvailableAmount();
 
-            usersInfo.get(username).getMovies().remove(toRemove);
-            updateUsersJSON();
-            moviesInfo.get(moviename).setAvailableAmount(copies+1);
-            updateMoviesJSON();
+            synchronized (lock){
+                usersInfo.get(username).getMovies().remove(toRemove);
+                updateUsersJSON();
+                moviesInfo.get(moviename).setAvailableAmount(copies+1);
+                updateMoviesJSON();
+            }
 
             connections.send(connectionId,"ACK return \""+moviename+"\" success");
-            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);//TODO: another thread
+            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);
         }
     }
 
@@ -214,7 +217,6 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         String moviename=str.substring(0,pos3);
         //2 - movie already exists
         if(moviesInfo.containsKey(moviename)){
-            System.out.println("PROBLEM");
             connections.send(connectionId,"ERROR request addmovie failed");
             return;
         }
@@ -264,17 +266,16 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             toAdd.setAvailableAmount(Integer.parseInt(amount));
             toAdd.setBannedCountries(bannedcountries);
 
-            moviesInfo.put(moviename,toAdd);
-            movies.add(toAdd);
-            updateMoviesJSON();
+            synchronized (lock){
+                moviesInfo.put(moviename,toAdd);
+                movies.add(toAdd);
+                updateMoviesJSON();
+            }
 
             connections.send(connectionId,"ACK addmovie \""+moviename+"\" success");
 
-            //System.out.println(moviesInfo.get(moviename).getName());
-
-
-                        connections.broadcast("BROADCAST movie \""+moviename+"\" "
-                                +Integer.parseInt(amount)+" "+Integer.parseInt(price));//TODO: broadcastas
+            connections.broadcast("BROADCAST movie \""+moviename+"\" "
+                                    +Integer.parseInt(amount)+" "+Integer.parseInt(price));
 
 
         }
@@ -297,10 +298,13 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             }
             else{
                 Movie toRemove = moviesInfo.get(moviename);
-                moviesInfo.remove(moviename);
-                movies.remove(toRemove);
 
-                updateMoviesJSON();
+                synchronized (lock){
+                    moviesInfo.remove(moviename);
+                    movies.remove(toRemove);
+                    updateMoviesJSON();
+                }
+
                 connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
                 connections.broadcast("BROADCAST movie \""+moviename+"\" removed");
 
@@ -308,6 +312,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         }
 
     }
+
 
     protected void changePrice(String str) throws IOException {
         int pos3 = str.indexOf("\"");
@@ -326,10 +331,12 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 return;
             }
             else{
-                Integer copies = moviesInfo.get(moviename).getAvailableAmount();
 
-                moviesInfo.get(moviename).setPrice(price);
-                updateMoviesJSON();
+                Integer copies = moviesInfo.get(moviename).getAvailableAmount();
+                synchronized (lock){
+                    moviesInfo.get(moviename).setPrice(price);
+                    updateMoviesJSON();
+                }
                 connections.send(connectionId,"ACK changeprice \""+moviename+"\" success");
                 connections.broadcast("BROADCAST movie \""+moviename+"\" "+copies+" "+price);//TODO: broadcast
             }
