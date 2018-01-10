@@ -17,24 +17,32 @@
       "totalAmount": "1"
     },
     {
-      "id": "5",
-      "name": "The Godfather",
-      "price": "25",
-      "bannedCountries": [],
-      "availableAmount": "2",
-      "totalAmount": "3"
+      "id": "4",
+      "name": "Justice League",
+      "price": "17",
+      "bannedCountries": [
+        "jordan",
+        "iran",
+        "lebanon"
+      ],
+      "availableAmount": "3",
+      "totalAmount": "4"
     },
     {
       "id": "6",
-      "name": "South Park \u0026 cut",
+      "name": "him",
       "price": "9",
-      "bannedCountries": [
-        "Israel",
-        "Iran",
-        "Italy"
-      ],
-      "availableAmount": "30",
-      "totalAmount": "30"
+      "bannedCountries": [],
+      "availableAmount": "9",
+      "totalAmount": "9"
+    },
+    {
+      "id": "7",
+      "name": "Hi natali",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "3",
+      "totalAmount": "3"
     }
   ]
 }

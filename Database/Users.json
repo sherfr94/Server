@@ -5,13 +5,8 @@
       "type": "admin",
       "password": "potato",
       "country": "united states",
-      "movies": [
-        {
-          "id": "5",
-          "name": "The Godfather"
-        }
-      ],
-      "balance": "275"
+      "movies": [],
+      "balance": "0"
     },
     {
       "username": "lisa",
@@ -39,6 +34,10 @@
         {
           "id": "2",
           "name": "The Pursuit Of Happyness"
+        },
+        {
+          "id": "4",
+          "name": "Justice League"
         }
       ],
       "balance": "95"
@@ -50,6 +49,14 @@
       "country": "iran",
       "movies": [],
       "balance": "50"
+    },
+    {
+      "username": "steve2",
+      "type": "normal",
+      "password": "mypass",
+      "country": "iran",
+      "movies": [],
+      "balance": "500"
     }
   ]
 }

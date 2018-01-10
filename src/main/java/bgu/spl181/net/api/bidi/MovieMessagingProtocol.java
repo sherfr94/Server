@@ -34,7 +34,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
 
     }
 
-    protected void updateMoviesJSON() throws IOException {
+    protected synchronized void updateMoviesJSON() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         FileWriter writer = new FileWriter("Database/Movies.json");
         writer.write(gson.toJson(moviesList));
@@ -214,6 +214,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
         String moviename=str.substring(0,pos3);
         //2 - movie already exists
         if(moviesInfo.containsKey(moviename)){
+            System.out.println("PROBLEM");
             connections.send(connectionId,"ERROR request addmovie failed");
             return;
         }
@@ -296,8 +297,9 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             }
             else{
                 Movie toRemove = moviesInfo.get(moviename);
-                moviesInfo.remove(toRemove);
+                moviesInfo.remove(moviename);
                 movies.remove(toRemove);
+
                 updateMoviesJSON();
                 connections.send(connectionId,"ACK remmovie \""+moviename+"\" success");
                 connections.broadcast("BROADCAST movie \""+moviename+"\" removed");

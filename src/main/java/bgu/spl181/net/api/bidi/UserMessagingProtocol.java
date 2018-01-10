@@ -146,7 +146,7 @@ public class UserMessagingProtocol<T> implements BidiMessagingProtocol<T>, Suppl
 
     }
 
-    protected void updateUsersJSON() throws IOException {//TODO: movies are written like shit
+    protected synchronized void updateUsersJSON() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         FileWriter writer = new FileWriter("Database/Users.json");
         writer.write(gson.toJson(usersList));
