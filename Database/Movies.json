@@ -1,17 +1,6 @@
 {
   "movies": [
     {
-      "id": "1",
-      "name": "The Godfather",
-      "price": "25",
-      "bannedCountries": [
-        "united kingdom",
-        "italy"
-      ],
-      "availableAmount": "0",
-      "totalAmount": "2"
-    },
-    {
       "id": "2",
       "name": "The Pursuit Of Happyness",
       "price": "14",
@@ -28,120 +17,24 @@
       "totalAmount": "1"
     },
     {
-      "id": "4",
-      "name": "Justice League",
-      "price": "17",
-      "bannedCountries": [
-        "jordan",
-        "iran",
-        "lebanon"
-      ],
-      "availableAmount": "1",
-      "totalAmount": "4"
-    },
-    {
       "id": "5",
-      "name": "it",
-      "price": "5",
+      "name": "The Godfather",
+      "price": "25",
       "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "5"
+      "availableAmount": "2",
+      "totalAmount": "3"
     },
     {
-      "id": "7",
-      "name": "kaka",
+      "id": "6",
+      "name": "South Park \u0026 cut",
       "price": "9",
-      "bannedCountries": [],
-      "availableAmount": "8",
-      "totalAmount": "9"
-    },
-    {
-      "id": "9",
-      "name": "john",
-      "price": "2",
-      "bannedCountries": [],
-      "availableAmount": "2",
-      "totalAmount": "2"
-    },
-    {
-      "id": "11",
-      "name": "nana",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "12",
-      "name": "mn",
-      "price": "2",
-      "bannedCountries": [],
-      "availableAmount": "2",
-      "totalAmount": "2"
-    },
-    {
-      "id": "13",
-      "name": "kri",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "14",
-      "name": "kaji",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "15",
-      "name": "helo",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "16",
-      "name": "lomi",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "17",
-      "name": "kho",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "1",
-      "totalAmount": "3"
-    },
-    {
-      "id": "18",
-      "name": "helpmespl",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "3",
-      "totalAmount": "3"
-    },
-    {
-      "id": "19",
-      "name": "sha",
-      "price": "256",
-      "bannedCountries": [],
-      "availableAmount": "255",
-      "totalAmount": "256"
-    },
-    {
-      "id": "20",
-      "name": "mnv",
-      "price": "3",
-      "bannedCountries": [],
-      "availableAmount": "1",
-      "totalAmount": "3"
+      "bannedCountries": [
+        "Israel",
+        "Iran",
+        "Italy"
+      ],
+      "availableAmount": "30",
+      "totalAmount": "30"
     }
   ]
 }

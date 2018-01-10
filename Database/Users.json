@@ -7,31 +7,11 @@
       "country": "united states",
       "movies": [
         {
-          "id": "1",
-          "name": "The Godfather"
-        },
-        {
           "id": "5",
-          "name": "it"
-        },
-        {
-          "id": "19",
-          "name": "sha"
-        },
-        {
-          "id": "20",
-          "name": "mnv"
-        },
-        {
-          "id": "20",
-          "name": "mnv"
-        },
-        {
-          "id": "4",
-          "name": "Justice League"
+          "name": "The Godfather"
         }
       ],
-      "balance": "220"
+      "balance": "275"
     },
     {
       "username": "lisa",
@@ -46,33 +26,9 @@
         {
           "id": "3",
           "name": "The Notebook"
-        },
-        {
-          "id": "5",
-          "name": "it"
-        },
-        {
-          "id": "4",
-          "name": "Justice League"
-        },
-        {
-          "id": "17",
-          "name": "kho"
-        },
-        {
-          "id": "17",
-          "name": "kho"
-        },
-        {
-          "id": "7",
-          "name": "kaka"
-        },
-        {
-          "id": "4",
-          "name": "Justice League"
         }
       ],
-      "balance": "483"
+      "balance": "37"
     },
     {
       "username": "shlomi",
@@ -81,15 +37,19 @@
       "country": "israel",
       "movies": [
         {
-          "id": "1",
-          "name": "The Godfather"
-        },
-        {
           "id": "2",
           "name": "The Pursuit Of Happyness"
         }
       ],
-      "balance": "112"
+      "balance": "95"
+    },
+    {
+      "username": "steve",
+      "type": "normal",
+      "password": "mypass",
+      "country": "iran",
+      "movies": [],
+      "balance": "50"
     }
   ]
 }
