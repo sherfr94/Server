@@ -36,7 +36,7 @@
         "iran",
         "lebanon"
       ],
-      "availableAmount": "3",
+      "availableAmount": "1",
       "totalAmount": "4"
     },
     {
@@ -52,7 +52,7 @@
       "name": "kaka",
       "price": "9",
       "bannedCountries": [],
-      "availableAmount": "9",
+      "availableAmount": "8",
       "totalAmount": "9"
     },
     {
@@ -101,6 +101,46 @@
       "price": "3",
       "bannedCountries": [],
       "availableAmount": "3",
+      "totalAmount": "3"
+    },
+    {
+      "id": "16",
+      "name": "lomi",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "3",
+      "totalAmount": "3"
+    },
+    {
+      "id": "17",
+      "name": "kho",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "1",
+      "totalAmount": "3"
+    },
+    {
+      "id": "18",
+      "name": "helpmespl",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "3",
+      "totalAmount": "3"
+    },
+    {
+      "id": "19",
+      "name": "sha",
+      "price": "256",
+      "bannedCountries": [],
+      "availableAmount": "255",
+      "totalAmount": "256"
+    },
+    {
+      "id": "20",
+      "name": "mnv",
+      "price": "3",
+      "bannedCountries": [],
+      "availableAmount": "1",
       "totalAmount": "3"
     }
   ]

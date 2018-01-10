@@ -158,7 +158,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             updateUsersJSON();
 
             connections.send(connectionId,"ACK rent \""+moviename+"\" success");
-            //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);//TODO: another thread
+            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies-1)+" "+moviePrice);//TODO: another thread
         }
 
     }
@@ -201,7 +201,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
             updateMoviesJSON();
 
             connections.send(connectionId,"ACK return \""+moviename+"\" success");
-            //connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);//TODO: another thread
+            connections.broadcast("BROADCAST movie \""+moviename+"\" "+(copies+1)+" "+moviePrice);//TODO: another thread
         }
     }
 
@@ -329,7 +329,7 @@ public class MovieMessagingProtocol<T> extends UserMessagingProtocol<T>{
                 moviesInfo.get(moviename).setPrice(price);
                 updateMoviesJSON();
                 connections.send(connectionId,"ACK changeprice \""+moviename+"\" success");
-                //connections.broadcast("BROADCAST movie \""+moviename+"\" "+copies+" "+price);//TODO: broadcast
+                connections.broadcast("BROADCAST movie \""+moviename+"\" "+copies+" "+price);//TODO: broadcast
             }
 
         }
